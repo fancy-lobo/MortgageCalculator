@@ -1,19 +1,28 @@
-# src/data/mortgage_details.py (or similar)
-
 import json
 import os
 
 
 def get_mortgage_details(filename="data/mortgage_details.json"):
     """
-    Load mortgage details from a file if available; otherwise prompt for details.
-    After entering new details, save them to the file.
+    Load mortgage details from the specified file if available;
+    otherwise prompt for details and save them.
     """
-    if os.path.exists(filename):
+    # Determine the current file's directory (this is in src/utils/)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # Assuming the project structure:
+    # project_root/
+    #   data/
+    #   src/
+    #     utils/
+    # We need to go up two levels to reach the project root.
+    project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+    file_path = os.path.join(project_root, filename)
+
+    if os.path.exists(file_path):
         use_saved = input(
             "Found saved mortgage details. Would you like to use them? (y/yes to use saved details): ").strip().lower()
         if use_saved in ['y', 'yes']:
-            with open(filename, "r") as file:
+            with open(file_path, "r") as file:
                 details = json.load(file)
             print("Using saved mortgage details:")
             print(details)
@@ -45,7 +54,10 @@ def get_mortgage_details(filename="data/mortgage_details.json"):
         'interest_rate': interest_rate
     }
 
-    with open(filename, "w") as file:
+    # Ensure the data directory exists before saving.
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    with open(file_path, "w") as file:
         json.dump(details, file)
 
     print("Mortgage details saved.")

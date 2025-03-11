@@ -1,7 +1,8 @@
 # src/main.py
 
-from utils.mortgage_details import get_mortgage_details
 from mortgage.calculator import MortgageCalculator
+from utils.mortgage_details import get_mortgage_details
+from mortgage.prepayment import get_prepayment_schedule, get_prepayment_amount
 
 
 def main():
@@ -19,16 +20,27 @@ def main():
     # Print a summary of the mortgage parameters.
     calculator.print_summary()
 
-    # Ask the user if they want to view the full amortization schedule.
+    # Ask the user if they want to add prepayments.
+    prepayment_option = input(
+        "\nDo you want to add prepayments?\n"
+        "Enter 1 for a custom prepayment schedule,\n"
+        "Enter 2 to calculate the required prepayment to achieve a target payoff time,\n"
+        "or press Enter to skip: "
+    ).strip()
+
+    if prepayment_option == "1":
+        prepayment_schedule = get_prepayment_schedule()
+    elif prepayment_option == "2":
+        # get_prepayment_amount returns a tuple (extra_payment, prepayment_schedule)
+        _, prepayment_schedule = get_prepayment_amount(details)
+    else:
+        prepayment_schedule = {}
+
+    # Ask if the user wants to view the full amortization schedule.
     show_schedule = input(
         "\nWould you like to see the full amortization schedule? (y/yes to display): ").strip().lower()
     if show_schedule in ['y', 'yes']:
-        # Optionally, you could let the user define a prepayment schedule here.
-        # For now, we'll use a default schedule if any exists.
-        prepayment_schedule = {1: 50000, 13: 50000, 25: 50000, 37: 50000, 49: 50000}
         calculator.print_schedule(prepayment_schedule)
-    else:
-        print("Amortization schedule display skipped.")
 
 
 if __name__ == "__main__":
