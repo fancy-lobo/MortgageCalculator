@@ -9,7 +9,7 @@ def main():
     # Retrieve mortgage details (using persisted data if available)
     details = get_mortgage_details()
 
-    # Create a MortgageCalculator instance with the retrieved details.
+    # Create a MortgageCalculator instance.
     calculator = MortgageCalculator(
         home_value=details['home_value'],
         down_payment=details['down_payment'],
@@ -29,7 +29,7 @@ def main():
     ).strip()
 
     if prepayment_option == "1":
-        # Pass the total number of payments to support indefinite scheduling.
+        # Pass the total number of payments for indefinite scheduling.
         prepayment_schedule = get_prepayment_schedule(total_payments=calculator.total_payments)
     elif prepayment_option == "2":
         # get_prepayment_amount returns a tuple (extra_payment, prepayment_schedule)
@@ -43,7 +43,7 @@ def main():
     if show_schedule in ['y', 'yes']:
         calculator.print_schedule(prepayment_schedule)
 
-    # Finally, display the updated mortgage summary reflecting prepayment inputs.
+    # Display the updated mortgage summary reflecting any prepayment inputs.
     calculator.print_updated_summary(prepayment_schedule)
 
 

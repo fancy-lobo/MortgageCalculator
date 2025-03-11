@@ -1,23 +1,58 @@
 # src/mortgage/prepayment.py
 
-def get_prepayment_schedule(total_payments: int = None) -> dict:
-    """
-    Ask the user whether all prepayments should be equal or custom.
-    Then, prompt for:
-      - The start month for prepayments.
-      - The frequency (in months) of prepayments.
-      - The number of prepayment intervals, or an option to prepay indefinitely (until loan is paid off).
-    For equal prepayments, a single lump-sum is used for each interval.
-    For custom prepayments, the user is prompted for each interval.
+import os
+import json
 
-    If the user chooses indefinite prepayments and total_payments is provided, the schedule is generated
-    from the start month until total_payments.
+
+def get_project_root() -> str:
+    """
+    Returns the absolute path of the project root directory.
+    Assumes this file is located at project_root/src/mortgage/prepayment.py.
+    """
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
+    return project_root
+
+
+def get_prepayment_schedule(total_payments: int = None, filename: str = None) -> dict:
+    """
+    Check if saved prepayment details exist in the data directory at the project root.
+    If found, ask the user if they want to reuse them.
+    Otherwise, prompt for new prepayment details.
+
+    The user can specify:
+      - Whether all prepayments are equal or custom,
+      - The start month,
+      - The frequency (in months),
+      - The number of intervals, or an option to prepay indefinitely.
+
+    When 'indefinitely' is chosen and total_payments is provided, the number of intervals is calculated as:
+      num_intervals = ((total_payments - start_month) // frequency_months) + 1
 
     Returns:
-      A dictionary mapping month numbers to prepayment amounts.
+      A dictionary mapping month numbers (as integers) to prepayment amounts.
     """
-    equal_choice = input("Should all prepayments be equal? (y/yes for equal, otherwise custom): ").strip().lower()
+    if filename is None:
+        project_root = get_project_root()
+        filename = os.path.join(project_root, "data", "prepayment_details.json")
 
+    # Ensure the data directory exists.
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+
+    # Check for existing prepayment details.
+    if os.path.exists(filename):
+        reuse = input("Found saved prepayment details. Do you want to use them? (y/yes to reuse): ").strip().lower()
+        if reuse in ['y', 'yes']:
+            with open(filename, "r") as f:
+                saved_details = json.load(f)
+            # Convert keys back to integers.
+            saved_details = {int(k): v for k, v in saved_details.items()}
+            print("Using saved prepayment details:")
+            print(saved_details)
+            return saved_details
+
+    # Prompt for new prepayment details.
+    equal_choice = input("Should all prepayments be equal? (y/yes for equal, otherwise custom): ").strip().lower()
     start_month = int(input("Enter the month number when prepayments should begin (e.g., 1 for the first month): "))
     frequency_months = int(input("Enter the frequency (in months) for prepayments (e.g., 12 for yearly): "))
 
@@ -47,7 +82,12 @@ def get_prepayment_schedule(total_payments: int = None) -> dict:
             amount = float(input(f"Enter the prepayment amount for month {month}: "))
             prepayment_schedule[month] = amount
 
+    # Save the new prepayment details to the file.
+    with open(filename, "w") as f:
+        json.dump(prepayment_schedule, f)
+
     return prepayment_schedule
+
 
 def get_prepayment_amount(mortgage_details: dict):
     """
