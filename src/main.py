@@ -9,7 +9,7 @@ def main():
     # Retrieve mortgage details (using persisted data if available)
     details = get_mortgage_details()
 
-    # Create a MortgageCalculator instance.
+    # Create a MortgageCalculator instance with the retrieved details.
     calculator = MortgageCalculator(
         home_value=details['home_value'],
         down_payment=details['down_payment'],
@@ -17,17 +17,20 @@ def main():
         interest_rate=details['interest_rate']
     )
 
-    # Prompt user with numbered options for prepayments.
+    # Print the base mortgage summary.
+    calculator.print_summary()
+
+    # Ask the user whether they want to add prepayments.
     prepayment_option = input(
-        "\nWould you like to add prepayments? Please select one of the following options:\n"
-        "1. Enter a custom prepayment schedule.\n"
-        "2. Calculate required prepayment to meet a target payoff time.\n"
-        "3. Skip prepayment details.\n"
-        "Enter 1, 2, or 3: "
+        "\nDo you want to add prepayments?\n"
+        "Enter 1 for a custom prepayment schedule,\n"
+        "Enter 2 to calculate the required prepayment to achieve a target payoff time,\n"
+        "or press Enter to skip: "
     ).strip()
 
     if prepayment_option == "1":
-        prepayment_schedule = get_prepayment_schedule()
+        # Pass the total number of payments to support indefinite scheduling.
+        prepayment_schedule = get_prepayment_schedule(total_payments=calculator.total_payments)
     elif prepayment_option == "2":
         # get_prepayment_amount returns a tuple (extra_payment, prepayment_schedule)
         _, prepayment_schedule = get_prepayment_amount(details)
@@ -40,7 +43,7 @@ def main():
     if show_schedule in ['y', 'yes']:
         calculator.print_schedule(prepayment_schedule)
 
-    # Now display the updated mortgage summary reflecting prepayment inputs.
+    # Finally, display the updated mortgage summary reflecting prepayment inputs.
     calculator.print_updated_summary(prepayment_schedule)
 
 

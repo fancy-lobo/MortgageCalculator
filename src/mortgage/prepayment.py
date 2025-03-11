@@ -1,14 +1,17 @@
 # src/mortgage/prepayment.py
 
-def get_prepayment_schedule() -> dict:
+def get_prepayment_schedule(total_payments: int = None) -> dict:
     """
     Ask the user whether all prepayments should be equal or custom.
     Then, prompt for:
       - The start month for prepayments.
       - The frequency (in months) of prepayments.
-      - The number of prepayment intervals.
+      - The number of prepayment intervals, or an option to prepay indefinitely (until loan is paid off).
     For equal prepayments, a single lump-sum is used for each interval.
     For custom prepayments, the user is prompted for each interval.
+
+    If the user chooses indefinite prepayments and total_payments is provided, the schedule is generated
+    from the start month until total_payments.
 
     Returns:
       A dictionary mapping month numbers to prepayment amounts.
@@ -17,7 +20,20 @@ def get_prepayment_schedule() -> dict:
 
     start_month = int(input("Enter the month number when prepayments should begin (e.g., 1 for the first month): "))
     frequency_months = int(input("Enter the frequency (in months) for prepayments (e.g., 12 for yearly): "))
-    num_intervals = int(input("Enter the number of prepayment intervals: "))
+
+    num_intervals_input = input(
+        "Enter the number of prepayment intervals (or type 'i' for indefinitely until loan is paid off): "
+    ).strip()
+
+    if num_intervals_input.lower() in ['i', 'indefinitely']:
+        if total_payments is not None:
+            num_intervals = ((total_payments - start_month) // frequency_months) + 1
+            print(f"Prepayments will be applied indefinitely for a total of {num_intervals} intervals.")
+        else:
+            print("Total payments not provided; please enter a number of intervals.")
+            num_intervals = int(input("Enter the number of prepayment intervals: "))
+    else:
+        num_intervals = int(num_intervals_input)
 
     prepayment_schedule = {}
     if equal_choice in ['y', 'yes']:
@@ -32,7 +48,6 @@ def get_prepayment_schedule() -> dict:
             prepayment_schedule[month] = amount
 
     return prepayment_schedule
-
 
 def get_prepayment_amount(mortgage_details: dict):
     """
