@@ -2,20 +2,19 @@
 
 def get_prepayment_schedule() -> dict:
     """
-    Ask the user whether they want to include prepayments, then allow them to specify:
-      - Whether all prepayments are equal or custom per interval.
-      - When prepayments start (month number), frequency (in months), and number of intervals.
+    Ask the user whether all prepayments should be equal or custom.
+    Then, prompt for:
+      - The start month for prepayments.
+      - The frequency (in months) of prepayments.
+      - The number of prepayment intervals.
+    For equal prepayments, a single lump-sum is used for each interval.
+    For custom prepayments, the user is prompted for each interval.
+
     Returns:
       A dictionary mapping month numbers to prepayment amounts.
     """
-    prepay_choice = input("Do you want to add prepayments? (y/yes to include): ").strip().lower()
-    if prepay_choice not in ['y', 'yes']:
-        return {}
-
-    # Ask whether the prepayments will be equal or custom.
     equal_choice = input("Should all prepayments be equal? (y/yes for equal, otherwise custom): ").strip().lower()
 
-    # Ask for the start month, frequency, and number of intervals.
     start_month = int(input("Enter the month number when prepayments should begin (e.g., 1 for the first month): "))
     frequency_months = int(input("Enter the frequency (in months) for prepayments (e.g., 12 for yearly): "))
     num_intervals = int(input("Enter the number of prepayment intervals: "))
