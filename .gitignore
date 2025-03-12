@@ -18,3 +18,4 @@
 !.idea/inspectionProfiles/
 /tests/__pycache__
 *.pyc
+*.pyc
