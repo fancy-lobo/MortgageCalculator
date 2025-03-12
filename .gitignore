@@ -17,3 +17,4 @@
 !.idea/vcs.xml
 !.idea/inspectionProfiles/
 /tests/__pycache__
+*.pyc
