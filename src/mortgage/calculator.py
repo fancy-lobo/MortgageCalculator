@@ -69,12 +69,14 @@ class MortgageCalculator:
     def print_updated_summary(self, prepayment_schedule: dict = None):
         """
         Compute and print an updated summary based on the amortization schedule
-        that factors in any prepayment inputs.
+        that factors in any prepayment inputs. This summary now includes the total
+        interest paid as a percentage of both the principal and the home value.
         """
         schedule = self.get_amortization_schedule(prepayment_schedule)
         if schedule:
             total_interest = sum(item['interest_payment'] for item in schedule)
             final_month = schedule[-1]['month']
+
             # Convert final_month into years and months.
             if final_month >= 12:
                 years = final_month // 12
@@ -86,9 +88,15 @@ class MortgageCalculator:
             else:
                 payoff_time = f"{final_month} month(s)"
 
+            # Calculate interest as a percentage of principal and home value.
+            interest_percent_principal = (total_interest / self.principal) * 100
+            interest_percent_home_value = (total_interest / self.home_value) * 100
+
             print("\nUpdated Mortgage Summary with Prepayments:")
             print(f"Loan is paid off in {payoff_time}.")
             print(f"Total interest paid: ${total_interest:,.2f}")
+            print(f"Interest as percentage of principal: {interest_percent_principal:.2f}%")
+            print(f"Interest as percentage of home value: {interest_percent_home_value:.2f}%")
         else:
             print("No payment schedule available.")
 
